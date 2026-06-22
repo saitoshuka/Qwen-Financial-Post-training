@@ -1,0 +1,41 @@
+model:
+  primary_name: Qwen/Qwen3.5-4B
+  fallback_name: Qwen/Qwen3-4B
+  trust_remote_code: true
+  dtype: bf16
+
+data:
+  train_path: data/processed/finance_qa_train.jsonl
+  val_path: data/processed/finance_qa_val.jsonl
+  test_path: data/processed/finance_qa_test.jsonl
+
+training:
+  output_dir: outputs/qwen-finance-lora-lowmem
+  seed: 42
+  max_length: 1024
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 16
+  gradient_checkpointing: true
+  learning_rate: 0.0002
+  num_train_epochs: 2
+  max_steps: -1
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  logging_steps: 5
+  save_steps: 100
+  eval_steps: 100
+  save_total_limit: 2
+  report_to: none
+
+lora:
+  r: 8
+  alpha: 16
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
