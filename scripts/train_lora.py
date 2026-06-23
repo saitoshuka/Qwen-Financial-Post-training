@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -84,6 +85,36 @@ def tokenize_records(tokenizer: Any, records: list[dict[str, Any]], max_length: 
     return encoded
 
 
+def configure_reporting(config: dict[str, Any]) -> tuple[list[str], str | None]:
+    report_to = get_nested(config, "training.report_to", "none")
+    if isinstance(report_to, str):
+        report_to_list = [] if report_to.lower() in {"none", "off", "false"} else [report_to]
+    else:
+        report_to_list = list(report_to or [])
+
+    run_name = get_nested(config, "training.run_name")
+    project = get_nested(config, "tracking.project")
+    entity = get_nested(config, "tracking.entity")
+    mode = get_nested(config, "tracking.mode")
+    tags = get_nested(config, "tracking.tags")
+    watch = get_nested(config, "tracking.watch")
+
+    if project:
+        os.environ.setdefault("WANDB_PROJECT", str(project))
+    if entity:
+        os.environ.setdefault("WANDB_ENTITY", str(entity))
+    if run_name:
+        os.environ.setdefault("WANDB_NAME", str(run_name))
+    if mode:
+        os.environ.setdefault("WANDB_MODE", str(mode))
+    if tags:
+        os.environ.setdefault("WANDB_TAGS", ",".join(str(tag) for tag in tags))
+    if watch is not None:
+        os.environ.setdefault("WANDB_WATCH", str(watch).lower())
+
+    return report_to_list, str(run_name) if run_name else None
+
+
 def main() -> None:
     args = parse_args()
     config = load_yaml(args.config)
@@ -147,6 +178,7 @@ def main() -> None:
         max_steps = args.max_steps
 
     output_dir = get_nested(config, "training.output_dir")
+    report_to, run_name = configure_reporting(config)
     training_args = make_training_arguments(
         output_dir=output_dir,
         seed=seed,
@@ -165,7 +197,8 @@ def main() -> None:
         save_strategy="steps",
         bf16=bf16,
         fp16=fp16,
-        report_to=[] if get_nested(config, "training.report_to", "none") == "none" else [get_nested(config, "training.report_to")],
+        report_to=report_to,
+        run_name=run_name,
         remove_unused_columns=False,
     )
 

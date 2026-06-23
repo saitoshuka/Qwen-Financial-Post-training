@@ -92,6 +92,30 @@ uv run python scripts/train_lora.py --config configs/lora_local_lowmem.yaml --tr
 
 The LoRA adapter is saved under `outputs/qwen-finance-lora` or `outputs/qwen-finance-lora-lowmem`.
 
+## Server Training With W&B
+
+On a larger GPU server, install the optional tracking dependencies and log in to Weights & Biases:
+
+```bash
+uv sync --extra tracking
+uv run wandb login
+```
+
+For non-interactive servers, set the API key instead:
+
+```bash
+export WANDB_API_KEY=<your-wandb-api-key>
+```
+
+Then run the 48GB server config with W&B enabled:
+
+```bash
+uv run python scripts/train_lora.py \
+  --config configs/lora_server_48gb_wandb.yaml
+```
+
+The run will appear under the W&B project `qwen-financial-post-training`. The non-W&B server config is still available at `configs/lora_server_48gb.yaml`.
+
 ## LoRA Evaluation
 
 Evaluate the adapter on the same split:
