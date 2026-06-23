@@ -116,6 +116,16 @@ uv run python scripts/train_lora.py \
 
 The run will appear under the W&B project `qwen-financial-post-training`. The non-W&B server config is still available at `configs/lora_server_48gb.yaml`.
 
+The 48GB configs use an effective batch size of 16 (`per_device_train_batch_size=2`, `gradient_accumulation_steps=8`) and keep gradient checkpointing enabled. If you still hit CUDA OOM, retry with:
+
+```bash
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+uv run python scripts/train_lora.py \
+  --config configs/lora_server_48gb_wandb.yaml
+```
+
+If that still fails, lower `max_length` to `1024` before reducing LoRA rank.
+
 ## LoRA Evaluation
 
 Evaluate the adapter on the same split:

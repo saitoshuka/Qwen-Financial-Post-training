@@ -183,6 +183,7 @@ def main() -> None:
         output_dir=output_dir,
         seed=seed,
         per_device_train_batch_size=int(get_nested(config, "training.per_device_train_batch_size", 1)),
+        per_device_eval_batch_size=int(get_nested(config, "training.per_device_eval_batch_size", 1)),
         gradient_accumulation_steps=int(get_nested(config, "training.gradient_accumulation_steps", 16)),
         learning_rate=float(get_nested(config, "training.learning_rate", 2e-4)),
         num_train_epochs=float(get_nested(config, "training.num_train_epochs", 3)),

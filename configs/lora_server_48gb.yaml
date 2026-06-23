@@ -13,9 +13,10 @@ training:
   output_dir: outputs/qwen-finance-lora-server-48gb
   seed: 42
   max_length: 2048
-  per_device_train_batch_size: 4
-  gradient_accumulation_steps: 4
-  gradient_checkpointing: false
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  gradient_checkpointing: true
   learning_rate: 0.0002
   num_train_epochs: 3
   max_steps: -1
